@@ -28,11 +28,11 @@ Role Variables
 The following variables are available for override.
 
 ```
-ec2_tag_cluster					# name of the Redpanda cluster
-ec2_tag_env						# name of envionrment (prod/non-prod)
-ec2_tag_role					# cluster role
-ec2_tag_index					# node ID
-ghostname						# derived hostname
+ec2_tag_cluster               # name of the Redpanda cluster
+ec2_tag_env.                  # name of envionrment (prod/non-prod)
+ec2_tag_role                  # cluster role
+ec2_tag_index	                 # node ID
+ghostname                     # derived hostname
 ```
 
 
