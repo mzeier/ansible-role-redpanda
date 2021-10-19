@@ -17,6 +17,9 @@
       mode: 0644
       owner: redpanda
       group: redpanda
+    notify:
+      - restart redpanda-tuner
+      - restart redpanda
 
   tags:
     - redpanda
