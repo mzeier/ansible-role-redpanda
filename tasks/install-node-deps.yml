@@ -1,0 +1,38 @@
+
+
+- block:
+
+
+  - name: install base deps 
+    apt:
+      name:
+        - iotop
+        - openjdk-11-jdk-headless
+        - xfsprogs
+        - apt-transport-https
+      state: present
+      update_cache: yes
+
+  - name: Check if /opt/kafka-dev exists
+    stat: 
+      path: /opt/kafka-dev
+    register: kafka_dev_link
+
+  - name: install kafka binaries
+    unarchive:
+      src: 'https://s3-us-west-2.amazonaws.com/kafka-packages/kafka_2.12-2.4.0.tgz'
+      dest: /opt/
+      remote_src: yes
+      creates: /opt/kafka_2.12-2.4.0
+    when: not kafka_dev_link.stat.exists
+
+  - name: create kafka-dev symlink directory referenced in tests
+    file:
+      src: /opt/kafka_2.12-2.4.0
+      dest: /opt/kafka-dev
+      state: link
+    when: not kafka_dev_link.stat.exists
+
+  tags:
+    - redpanda-deps
+    - redpanda

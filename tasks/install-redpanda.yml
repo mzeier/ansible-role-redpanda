@@ -1,0 +1,39 @@
+---
+
+- block:
+
+  - name: add redpanda apt key
+    apt_key:
+      url: "https://packages.vectorized.io/sMIXnoa7DK12JW4A/redpanda/gpg.988A7B0A4918BC85.key"
+      state: present
+
+  - name: add the redpanda repo
+    apt_repository:
+      repo: "deb https://packages.vectorized.io/sMIXnoa7DK12JW4A/redpanda/deb/ubuntu {{ ansible_distribution_release }} main"
+      # repo: "deb http://packages.treasuredata.com/3/ubuntu/{{ ansible_distribution_release }}/ {{ ansible_distribution_release }} contrib"
+      filename: "vectorized-redpanda"
+      state: present
+
+  - name: add the redpanda src-repo
+    apt_repository:
+      repo: "deb-src https://packages.vectorized.io/sMIXnoa7DK12JW4A/redpanda/deb/ubuntu {{ ansible_distribution_release }} main"
+      filename: "vectorized-redpanda"
+      state: present
+
+  
+  - name: install redpanda from repository
+    package:
+      name:
+        - redpanda
+      state: present
+      update_cache: yes
+
+  - name: set data dir file perms
+    file:
+      path: /var/lib/redpanda/data
+      owner: redpanda
+      group: redpanda
+
+  tags:
+    - redpanda
+    - redpanda-install

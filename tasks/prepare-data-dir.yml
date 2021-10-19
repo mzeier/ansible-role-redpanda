@@ -1,0 +1,71 @@
+---
+
+- block: 
+
+  - set_fact: 
+      device_info: "{{ hostvars[inventory_hostname].ansible_devices }}"
+      nvme_device_ids: "{{ hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'nvme.*') | select('string') | list }}" 
+  - set_fact: 
+      nvme_devices_for_raid: '{{ (nvme_devices_for_raid | default([])) + ["/dev/" + item] }}'
+    loop: '{{ nvme_device_ids }}'
+    when: device_info[item]["partitions"] | length == 0
+  - set_fact:
+      nvme_devices_for_raid: '{{ (nvme_devices_for_raid | default([])) }}'
+
+  - debug:
+      msg: "{{ nvme_devices_for_raid }}"
+
+
+  - name: create LVM volume group
+    lvg: vg="{{ item.volname }}" pvs="{{ nvme_devices_for_raid }}" pesize=4 state=present
+    with_items:
+      - "{{ data_lvm }}"
+
+
+  - name: create LVM logical volumes (data)
+    lvol:
+      vg: "{{ item.volname }}"
+      lv: "{{ item.lvname }}"
+      size: 100%VG
+      opts: "--stripes {{ item.stripes }} --stripesize 512"
+      shrink: no
+    ignore_errors: yes
+    with_items:
+      - "{{ data_lvm }}"
+
+  - name: create xfs file system
+    filesystem: fstype=xfs dev="/dev/{{ item.volname }}/{{ item.lvname }}" opts="-L data1"
+    with_items:
+      - "{{ data_lvm }}"
+
+  - name: mount /mnt/vectorized
+    mount:
+      name: "{{ item.mnt }}"
+      src: "LABEL={{ item.lvname }}"
+      fstype: xfs
+      state: mounted
+      passno: "2"
+    with_items:
+      - "{{ data_lvm }}"
+
+
+  - name: data path
+    file:
+      path: /mnt/vectorized/redpanda
+      state: directory
+      owner: root
+      group: root
+      mode: ugo=rwx
+      
+  - name: set permissions
+    file:
+      dest: /var/lib/redpanda
+      src: /mnt/vectorized/redpanda
+      state: link
+      owner: root
+      group: root
+      mode: ugo=rwx
+
+  tags:
+    - redpanda
+    - redpanda-data-dir

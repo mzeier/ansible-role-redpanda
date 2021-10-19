@@ -1,0 +1,54 @@
+---
+
+- hosts: redpanda
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - block:
+      - name: install pip
+        apt: name=python3-pip state=present update_cache=true
+
+      - name: install pip packages
+        pip:
+          name: [boto, boto3]
+          state: latest
+
+      - name: grab ec2_metadata_facts
+        ec2_metadata_facts:
+
+      - name: 'Retrieve all tags on an instance during pre-tasks'
+        ec2_tag:
+          region: '{{ ansible_ec2_placement_region }}'
+          resource: '{{ ansible_ec2_instance_id }}'
+          state: list
+        register: ec2_tags
+
+      - name: 'set ec2_tag_cluster fact'
+        set_fact:
+          ec2_tag_cluster: "{{ ec2_tags.tags.cluster | default('') }}"
+
+      - name: 'set ec2_tag_env fact'
+        set_fact:
+          ec2_tag_env: "{{ ec2_tags.tags.env | default('') }}"
+          
+      - name: 'set ec2_tag_role fact'
+        set_fact:
+          ec2_tag_role: "{{ ec2_tags.tags.role | default('') }}"
+
+      - name: 'set ec2_tag_index fact'
+        set_fact:
+          ec2_tag_index: "{{ ec2_tags.tags.index | default('') }}"
+
+      - name: generate hostname
+        set_fact:
+          ghostname: "{{ ec2_tag_role }}-{{ ansible_ec2_placement_availability_zone.split('-')[2] }}-{{ ec2_tag_env }}-{{ ec2_tag_index }}-{{ ansible_ec2_instance_identity_document_instanceid  }}"
+
+      tags:
+        - always
+
+  roles:
+
+    - redpanda
+
+

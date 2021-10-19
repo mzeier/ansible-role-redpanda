@@ -1,0 +1,52 @@
+cluster_id: {{ cluster_id }}
+config_file: {{ config_file }}
+node_uuid: {{ ghostname | to_uuid | hash('sha256') | truncate(49, True, '') }}
+organization: {{ organization }}
+pandaproxy: {}
+redpanda:
+  admin:
+  - address: {{ ansible_default_ipv4.address }}
+    port: 9644
+  advertised_kafka_api:
+  - address: {{ ansible_default_ipv4.address }}
+    port: 9092
+  advertised_rpc_api:
+    address: {{ ansible_default_ipv4.address }}
+    port: 33145
+  auto_create_topics_enabled: {{ redpanda_auto_create_topics_enabled }}
+  data_directory: {{ redpanda_data_directory }}
+  developer_mode: {{ redpanda_developer_mode }}
+  kafka_api:
+  - address: {{ ansible_default_ipv4.address }}
+    port: 9092
+  node_id: {{ node_id }}
+  rpc_server:
+    address: {{ ansible_default_ipv4.address }}
+    port: 33145
+{% if ec2_tag_index == "1" %}
+  seed_servers: []
+{% else %}
+  seed_servers:
+  - host:
+      address: {{ seed_node }}
+      port: 33145
+{% endif %}
+rpk:
+  coredump_dir: {{ rpk_coredump_dir }}
+  enable_memory_locking: {{ rpk_enable_memory_locking }}
+  enable_usage_stats: {{ rpk_enable_usage_stats }}
+  overprovisioned: {{ rpk_overprovisioned }}
+  tune_aio_events: {{ rpk_tune_aio_events }}
+  tune_ballast_file: {{ rpk_tune_ballast_file }}
+  tune_clocksource: {{ rpk_tune_clocksource }}
+  tune_coredump: {{ rpk_tune_coredump }}
+  tune_cpu: {{ rpk_tune_cpu }}
+  tune_disk_irq: {{ rpk_tune_disk_irq }}
+  tune_disk_nomerges: {{ rpk_tune_disk_nomerges }}
+  tune_disk_scheduler: {{ rpk_tune_disk_scheduler }}
+  tune_disk_write_cache: {{ rpk_tune_disk_write_cache }}
+  tune_fstrim: {{ rpk_tune_fstrim }}
+  tune_network: {{ rpk_tune_network }}
+  tune_swappiness: {{ rpk_tune_swappiness }}
+  tune_transparent_hugepages: {{ rpk_tune_transparent_hugepages }}
+schema_registry: {}

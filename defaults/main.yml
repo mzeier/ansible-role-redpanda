@@ -1,0 +1,37 @@
+---
+
+data_lvm:
+  -
+    volname: "voldata"
+    lvname: "data1"
+    stripes: 1
+    mnt: "/mnt/vectorized"
+
+
+# redpanda.yaml config values
+cluster_id: "{{ ec2_tag_cluster }}"
+organization: "{{ ec2_tag_cluster }}"
+node_id: "{{ ec2_tag_index }}"
+config_file: "/etc/redpanda/redpanda.yaml"
+
+redpanda_auto_create_topics_enabled: "true"
+redpanda_data_directory: "/var/lib/redpanda/data"
+redpanda_developer_mode: "false"
+
+rpk_coredump_dir: "/var/lib/redpanda/coredump"
+rpk_enable_memory_locking: "false"
+rpk_enable_usage_stats: "true"
+rpk_overprovisioned: "false"
+rpk_tune_aio_events: "true"
+rpk_tune_ballast_file: "true"
+rpk_tune_clocksource: "true"
+rpk_tune_coredump: "false"
+rpk_tune_cpu: "true"
+rpk_tune_disk_irq: "true"
+rpk_tune_disk_nomerges: "true"
+rpk_tune_disk_scheduler: "true"
+rpk_tune_disk_write_cache: "true"
+rpk_tune_fstrim: "true"
+rpk_tune_network: "true"
+rpk_tune_swappiness: "true"
+rpk_tune_transparent_hugepages: "false"

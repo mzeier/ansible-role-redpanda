@@ -1,0 +1,25 @@
+---
+
+- block:
+
+  - name: ensure /etc/redpanda exists
+    file:
+      path: /etc/redpanda
+      state: directory
+      mode: 0755
+      owner: redpanda
+      group: redpanda
+
+  - name: plumb {{ config_file }}
+    template:
+      src: redpanda.yaml.j2
+      dest: "{{ config_file }}"
+      mode: 0644
+      owner: redpanda
+      group: redpanda
+
+  tags:
+    - redpanda
+    - redpanda-start
+    - redpanda-config
+    - redpanda-conf
