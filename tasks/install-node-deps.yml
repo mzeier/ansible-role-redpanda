@@ -6,8 +6,6 @@
   - name: install base deps 
     apt:
       name:
-        - iotop
-        - openjdk-11-jdk-headless
         - xfsprogs
         - apt-transport-https
       state: present
